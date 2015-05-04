@@ -12,19 +12,21 @@
       `<param name="wmode" value="transparent"> `
       `<embed src="http://webapp.djyule.com/webPlayer.swf?music_ID=61954" quality="high" pluginspage="http://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash" type="application/x-shockwave-flash" width="500" height="600">
     </object>`
+
 从上面可以取得播放器以及ID：[http://webapp.djyule.com/webPlayer.swf?music_ID=61954](http://webapp.djyule.com/webPlayer.swf?music_ID=61954 "播放器")
 
 3. 上一步得到`music_ID=61954`,观察Fiddler获取歌曲信息的是：`http://webapp.djyule.com/dj2010/load_webPlay_musicID.asp?music_ID=61954`返回值为`strLoadMusic=61954,,,柔情无骨美女串烧,,,flash/DJ_64/up090120_1/会员：yesuper lee 柔情无骨美女串烧.mp3,,,1,,,71:02,,,2009-1-21,,,yesuper_lee`
 
 所以可以得出**请求URL信息地址构造(URL1):`http://webapp.djyule.com/dj2010/load_webPlay_musicID.asp?music_ID=音乐ID`**,返回值为`URL1_RESPONSE`
 对于上面例子:
-`URL1_RESPONSE.split(",,,")[0] = 61954`
-`URL1_RESPONSE.split(",,,")[1] = 柔情无骨美女串烧`
-`URL1_RESPONSE.split(",,,")[2] = flash/DJ_64/up090120_1/会员：yesuper lee 柔情无骨美女串烧.mp3`
-`URL1_RESPONSE.split(",,,")[3] = 1`
-`URL1_RESPONSE.split(",,,")[4] = 71:02`
-`URL1_RESPONSE.split(",,,")[4] = 2009-1-21`
-`URL1_RESPONSE.split(",,,")[4] = yesuper_lee`
+
+    URL1_RESPONSE.split(",,,")[0] = 61954
+    URL1_RESPONSE.split(",,,")[1] = 柔情无骨美女串烧`
+    URL1_RESPONSE.split(",,,")[2] = flash/DJ_64/up090120_1/会员：yesuper lee 柔情无骨美女串烧.mp3
+    URL1_RESPONSE.split(",,,")[3] = 1
+    URL1_RESPONSE.split(",,,")[4] = 71:02
+    URL1_RESPONSE.split(",,,")[4] = 2009-1-21
+    URL1_RESPONSE.split(",,,")[4] = yesuper_lee
 
 **真正歌曲为:`http://a64-1.jyw8.com:8080/up090120_1/会员：yesuper lee 柔情无骨美女串烧.mp3`**
 
