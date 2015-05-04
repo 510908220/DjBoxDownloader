@@ -8,16 +8,19 @@
 import queue
 import threading
 import requests
+import time
+import os
 
 
 def worker(download_url, progress, local_path):
     def update_progress(total_size, recived_size):
-        percent = (recived_size / total_size) * 100
+        percent = int((recived_size / total_size) * 100)
         if progress.empty():
-            progress.put_nowait(percent, False)
+            progress.put_nowait(percent)
 
     r = requests.get(download_url, stream=True)
-    total_size = r.headers['Content-Length']
+    total_size = int(r.headers['Content-Length'])
+    print("total_size is", total_size)
 
     with open(local_path, 'wb') as f:
         recived_size = 0
@@ -28,6 +31,10 @@ def worker(download_url, progress, local_path):
                 f.write(chunk)
                 f.flush()
 
+def progress_bar(procent):
+    os.system('clear')
+    buffer = "进度:%{0} {1}".format(procent, procent * "+")
+    print(buffer)
 
 class Downloader(object):
     def __init__(self, download_url, local_path):
@@ -61,7 +68,15 @@ class Downloader(object):
         self._thread.start()
 
 if __name__ == "__main__":
-    pass
+    url = "http://a64-5.jyw8.com:8080/up20100924-1/DJ%CE%CA%C7%E9-2010%C7%BF%BA%B4%B6%AF%B8%D0%B3%B5%D4%D8%C8%AB%D6%D0%CE%C4Club.mp3?up20100924-1/DJ%CE%CA%C7%E9-2010%C7%BF%BA%B4%B6%AF%B8%D0%B3%B5%D4%D8%C8%AB%D6%D0%CE%C4C8ub.mp3?50886618630126432167401881173198672747524287525838"
+    path  = "d:\\aa.mp3"
+    dw = Downloader(url, path)
+    dw.start()
+    while  dw.finished:
+        progress_bar(dw.progress)
+        time.sleep(2)
+
+
 
 
 
