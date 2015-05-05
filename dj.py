@@ -60,14 +60,20 @@ def get_song_urls(page_url):
 # 命令行控制下载全部，部分，等
 def main():
 	page_urls = get_page_urls()
-	song_url = get_song_urls(page_urls[0])[0]
-	song_ = song.Song(song_url)
-	d_path = os.path.join(MUSIC_STORE, song_.name + ".mp3")
-	dn = util.Downloader(song_.download_url,d_path)
-	dn.start()
-	while not dn.finished:
-		util.progress_bar(dn.progress)
-	util.progress_bar(100)
+	song_urls = get_song_urls(page_urls[0])
+	for song_url in song_urls:
+		song_ = song.Song(song_url)
+		if song_.error:
+			continue
+		print("下载歌曲:",song_.name)
+		d_path = os.path.join(MUSIC_STORE, song_.name + ".mp3")
+		dn = util.Downloader(song_.download_url,d_path)
+		dn.start()
+		while not dn.finished:
+			util.progress_bar(dn.progress)
+		util.progress_bar(100)
+		print("\n")
+		sys.stdout.flush()
 
 
 

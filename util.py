@@ -65,7 +65,7 @@ class Downloader(object):
 
 	@property
 	def finished(self):
-		return self._thread.is_alive()
+		return not self._thread.is_alive()
 
 	def start(self):
 		self._thread = threading.Thread(target=worker, args=(self._download_url, self._progress, self._local_path))

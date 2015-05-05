@@ -70,6 +70,10 @@ class Song(object):
 		self._song_info = _get(self._song_url)
 
 	@property
+	def error(self):
+		return self._song_info == None
+
+	@property
 	def song_url(self):
 		return self._song_url
 
