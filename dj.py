@@ -59,21 +59,31 @@ def get_song_urls(page_url):
 
 # 命令行控制下载全部，部分，等
 def main():
+	if not os.path.exists(MUSIC_STORE):
+		os.makedirs(MUSIC_STORE)
+
 	page_urls = get_page_urls()
-	song_urls = get_song_urls(page_urls[0])
-	for song_url in song_urls:
-		song_ = song.Song(song_url)
-		if song_.error:
-			continue
-		print("下载歌曲:",song_.name)
-		d_path = os.path.join(MUSIC_STORE, song_.name + ".mp3")
-		dn = util.Downloader(song_.download_url,d_path)
-		dn.start()
-		while not dn.finished:
-			util.progress_bar(dn.progress)
-		util.progress_bar(100)
-		print("\n")
-		sys.stdout.flush()
+
+	page_count = len(page_urls)
+	for page_index, page_url in enumerate(page_urls,1):
+		song_urls = get_song_urls(page_url)
+		song_count = len(song_urls)
+		page_info = "页面:{0}/{1}".format(page_index, page_count)
+		for song_index, song_url in enumerate(song_urls, 1):
+			song_info = "歌曲:{0}/{1} song".format(song_index, song_count)
+			progress_info = "({0}{1})".format(song_info, page_info)
+			song_ = song.Song(song_url)
+			if song_.error:
+				continue
+			d_path = os.path.join(MUSIC_STORE, song_.name + ".mp3")
+			dn = util.Downloader(song_.download_url,d_path)
+			dn.start()
+			print("正在下载歌曲:",song_.name, progress_info)
+			while not dn.finished:
+				util.progress_bar(dn.progress)
+			util.progress_bar(100)
+			print("\n")
+			sys.stdout.flush()
 
 
 
