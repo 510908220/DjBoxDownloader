@@ -105,7 +105,7 @@ class Song(object):
 
     @property
     def save_path(self):
-        d_path = os.path.join(config.MUSIC_STORE, self.name + ".mp3")
+        return os.path.join(config.MUSIC_STORE, self.name + ".mp3")
 
 
 
