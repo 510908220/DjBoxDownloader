@@ -11,81 +11,89 @@ import util
 
 MOST_DOWNLOAD_PAGE_URL = "http://www.djyule.com/downPH.htm"
 BASE_URL = "http://www.djyule.com"
-MUSIC_STORE = "d:\\music"
+
+
 
 def _get(song_url):
-	response = requests.get(song_url)
-	if response.status_code == 200:
-		response.encoding = "utf-8"
-		return response.text
+    response = requests.get(song_url)
+    if response.status_code == 200:
+        response.encoding = "utf-8"
+        return response.text
 
 
 def get_page_urls():
-	def get_page_count():
-		html = _get(MOST_DOWNLOAD_PAGE_URL)
-		if html:
-			soup = BeautifulSoup(html)
-			div_page = soup.find('div', attrs={"class": "List_Page3"})
-			if div_page:
-				a_items = div_page.find_all("a")
-				if len(a_items) > 0:
-					href = a_items[-1]["href"]
-					return int(href.split(".")[0].split("_")[1])  # downPH_50.htm
+    def get_page_count():
+        html = _get(MOST_DOWNLOAD_PAGE_URL)
+        if html:
+            soup = BeautifulSoup(html)
+            div_page = soup.find('div', attrs={"class": "List_Page3"})
+            if div_page:
+                a_items = div_page.find_all("a")
+                if len(a_items) > 0:
+                    href = a_items[-1]["href"]
+                    return int(href.split(".")[0].split("_")[1])  # downPH_50.htm
 
-	page_urls = []
-	count = get_page_count()
+    page_urls = []
+    count = get_page_count()
 
-	for page_index in range(1, 50 + 1):
-		if page_index == 1:
-			url = MOST_DOWNLOAD_PAGE_URL
-		else:
-			url = "http://www.djyule.com/downPH_%d.htm" % page_index
-		page_urls.append(url)
-	return page_urls
+    for page_index in range(1, 50 + 1):
+        if page_index == 1:
+            url = MOST_DOWNLOAD_PAGE_URL
+        else:
+            url = "http://www.djyule.com/downPH_%d.htm" % page_index
+        page_urls.append(url)
+    return page_urls
 
 
 def get_song_urls(page_url):
-	html = _get(page_url)
-	song_urls = []
-	if html:
-		soup = BeautifulSoup(html)
-		form = soup.find('form', attrs={"id": "frmList"})
-		# a href="/DJ/120696.htm" target="_blankDJPlay"
-		a_items = form.find_all("a", {"target": "_blankDJPlay"})
-		for item in a_items:
-			song_url = urljoin(BASE_URL, item["href"])
-			song_urls.append(song_url)
-	return song_urls
+    html = _get(page_url)
+    song_urls = []
+    if html:
+        soup = BeautifulSoup(html)
+        form = soup.find('form', attrs={"id": "frmList"})
+        # a href="/DJ/120696.htm" target="_blankDJPlay"
+        a_items = form.find_all("a", {"target": "_blankDJPlay"})
+        for item in a_items:
+            song_url = urljoin(BASE_URL, item["href"])
+            song_urls.append(song_url)
+    return song_urls
+
 
 # 命令行控制下载全部，部分，等
+def _get_songs():
+    # if not os.path.exists(MUSIC_STORE):
+    # os.makedirs(MUSIC_STORE)
+
+    page_urls = get_page_urls()
+    songs = []
+
+    page_count = len(page_urls)
+    for page_index, page_url in enumerate(page_urls, 1):
+        song_urls = get_song_urls(page_url)
+        song_count = len(song_urls)
+        page_info = "页面:{0}/{1}".format(page_index, page_count)
+        for song_index, song_url in enumerate(song_urls, 1):
+            song_info = "歌曲:{0}/{1} song".format(song_index, song_count)
+            progress_info = "({0}{1})".format(song_info, page_info)
+            song_ = song.Song(song_url)
+            if song_.error:
+                continue
+            songs.append(song_)
+        # d_path = os.path.join(MUSIC_STORE, song_.name + ".mp3")
+        # dn = util.Downloader(song_.download_url,d_path)
+        # dn.start()
+        # print("正在下载歌曲:",song_.name, progress_info)
+        # while not dn.finished:
+        # 	util.progress_bar(dn.progress)
+        # util.progress_bar(100)
+        # print("\n")
+        # sys.stdout.flush()
+
+
 def main():
-	if not os.path.exists(MUSIC_STORE):
-		os.makedirs(MUSIC_STORE)
-
-	page_urls = get_page_urls()
-
-	page_count = len(page_urls)
-	for page_index, page_url in enumerate(page_urls,1):
-		song_urls = get_song_urls(page_url)
-		song_count = len(song_urls)
-		page_info = "页面:{0}/{1}".format(page_index, page_count)
-		for song_index, song_url in enumerate(song_urls, 1):
-			song_info = "歌曲:{0}/{1} song".format(song_index, song_count)
-			progress_info = "({0}{1})".format(song_info, page_info)
-			song_ = song.Song(song_url)
-			if song_.error:
-				continue
-			d_path = os.path.join(MUSIC_STORE, song_.name + ".mp3")
-			dn = util.Downloader(song_.download_url,d_path)
-			dn.start()
-			print("正在下载歌曲:",song_.name, progress_info)
-			while not dn.finished:
-				util.progress_bar(dn.progress)
-			util.progress_bar(100)
-			print("\n")
-			sys.stdout.flush()
-
+    songs = _get_songs()
+    print(len(songs))
 
 
 if __name__ == "__main__":
-	sys.exit(main())
+    sys.exit(main())
